@@ -1,14 +1,17 @@
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import Optional
 
-class MainWeather(BaseModel):
+class WeatherMain(BaseModel):
     temp: float
     humidity: int
 
-class Wind(BaseModel):
+class WeatherWind(BaseModel):
     speed: float
 
-class WeatherData(BaseModel):
-    name: str  # city name
-    main: MainWeather
-    wind: Wind
+class WeatherDataIn(BaseModel):
+    name: str
+    main: WeatherMain
+    wind: WeatherWind
+
+class WeatherDataOut(WeatherDataIn):
+    id: Optional[str]  # MongoDB _id mapped as string
