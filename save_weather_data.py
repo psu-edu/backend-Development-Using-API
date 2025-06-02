@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+from models import WeatherDataIn, WeatherMain, WeatherWind
 
 load_dotenv()
 
@@ -21,18 +22,20 @@ cities = ["New York", "London", "Tokyo", "Paris", "Sydney", "Toronto", "Mumbai"]
 def fetch_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
     response = requests.get(url)
+    
     if response.status_code == 200:
         data = response.json()
-        return {
-            "city": city,
-            "temperature": data["main"]["temp"],
-            "humidity": data["main"]["humidity"],
-            "wind_speed": data["wind"]["speed"]
-        }
+        weather_data = WeatherDataIn(
+            city=city,
+            temperature=WeatherMain(temp=data["main"]["temp"]),
+            wind=WeatherWind(speed=data["wind"]["speed"]),
+            description=data["weather"][0]["description"]
+        )
+        return weather_data.dict()
     else:
-        print(f"Failed to fetch for {city}: {response.status_code}")
-        return None
-
+        print(f"Failed to fetch data for {city}: {response.status_code}")
+        return None   
+    
 def save_to_db(weather_data):
     if weather_data:
         existing = collection.find_one({"city": weather_data["city"]})

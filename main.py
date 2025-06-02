@@ -40,7 +40,7 @@ def create_weather(data: WeatherDataIn):
 def update_weather(id: str, data: WeatherDataIn):
     update_result = collection.update_one(
         {"_id": ObjectId(id)},
-        {"$set": data.dict()}
+        {"$set": data.model_dump()}
     )
     if update_result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Weather data not found")
